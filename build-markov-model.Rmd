@@ -1,0 +1,60 @@
+---
+title: "Build a Markov Model"
+author: "Alyssa Pham"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#first, make a Markov Model function
+
+```{r initiate}
+simulate_markov<-function(transition_matrix,states,initial_state,n_steps) {
+  #define number of states
+  n_states<-length(states)
+  
+  #initialize state tracker
+  state_tracker<-numeric(n_steps)
+  state_tracker[1]<-initial_state
+  
+  # Simulate the Markov process
+  for (step in 2:n_steps) {
+    current_state<-state_tracker[step-1]
+    next_state<-sample(
+      x=1:n_states,
+      size=1,
+      prob=transition_matrix[current_state,]
+    )
+    state_tracker[step]<-next_state
+  }
+  
+  #then map numeric states to actual state names
+  state_names<-states[state_tracker]
+  return(state_names)
+}
+
+#include some sample parameters
+states<-c("Healthy","Sick")
+transition_matrix<-matrix(
+  c(0.8, 0.2, #from Healthy
+    0.3, 0.7), #from Sick
+  nrow=2, byrow=TRUE
+)
+
+initial_state<-1  #start in Healthy state
+n_steps<-50  #set default number of steps to simulate
+```
+
+#... and finalize everything!
+
+```{r finalize}
+result <- simulate_markov(transition_matrix, states, initial_state, n_steps)
+print(result)
+```
+
+```{r shiny setup}
+saveRDS(result,"markov_model.rds")
+```
